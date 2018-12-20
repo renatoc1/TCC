@@ -3,7 +3,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.renato.models.Usuario;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import br.com.renato.models.Usuario;
+import br.com.renato.util.JPAUtil;
 
 public class Teste {
 
@@ -14,7 +19,8 @@ public class Teste {
 		try {
 				
 		String[] list = new String[TAMANHO_LISTA];
-		Usuario usuario = new Usuario();
+		Usuario usuario = null;
+		EntityManager em = new JPAUtil().getEntityManager();
 			
 		//Lê arquivo
 		FileInputStream fis = new FileInputStream("Teste2.txt");
@@ -55,6 +61,7 @@ public class Teste {
 			        //Verifica se o formato da data está correto
 		        	if(formatoCorreto(dtDia, dtMes, dtAno)) {
 		                	                	
+		        		usuario = new Usuario();
 						salvarDados(usuario, linha);
 		            		
 		            } else {
@@ -62,8 +69,10 @@ public class Teste {
 		            }
 		        
 				} else {
-					usuario.setMensagem(usuario.getMensagem() + linha);
-	                System.out.println(usuario.getMensagem());
+					if (usuario != null) {
+						usuario.setMensagem(usuario.getMensagem() + linha);
+		                System.out.println(usuario.getMensagem());
+					}
 	            }        	
 		                
 		        linha = br.readLine();
@@ -72,10 +81,15 @@ public class Teste {
 				linha = br.readLine();
 			}
 	        
+			em.getTransaction().begin();
+	        em.persist(usuario);
+	        em.getTransaction().commit();
+	        
 		}
-	    
+	           
 		//Fecha o buffer
 	    br.close();
+	    em.close();
 	    
 		} catch(Exception e) { 
 			System.out.println(e.getMessage());
