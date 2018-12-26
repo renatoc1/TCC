@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
@@ -24,9 +25,7 @@ public class Teste {
 		String sextotermo = "";
 			
 		//Lê arquivo
-		FileInputStream fis = new FileInputStream("Conversa1.txt");
-		InputStreamReader isr = new InputStreamReader(fis);
-		BufferedReader br = new BufferedReader(isr);
+		BufferedReader br = leArquivo();
 		
 		String linha = br.readLine();
 		
@@ -35,7 +34,7 @@ public class Teste {
 			
 			//Linha em branco
 			
-			if (validLinha(linha)) {
+			if (validarLinha(linha)) {
 			
 				int i;
 				String dataFormato = "";
@@ -96,7 +95,7 @@ public class Teste {
 	        
 		}
 	           
-		//Fecha o buffer
+		//Fecha as conexões
 	    br.close();
 	    em.close();
 	    
@@ -105,7 +104,14 @@ public class Teste {
 		}	
 	}
 
-	private static boolean validLinha(String linha) {
+	private static BufferedReader leArquivo() throws FileNotFoundException {
+		FileInputStream fis = new FileInputStream("Conversa1.txt");
+		InputStreamReader isr = new InputStreamReader(fis);
+		BufferedReader br = new BufferedReader(isr);
+		return br;
+	}
+
+	private static boolean validarLinha(String linha) {
 		String linhaStr = linha.trim();
 		if (linhaStr.isEmpty()) {
 			return false;
@@ -119,7 +125,7 @@ public class Teste {
 
 	private static void salvarDados(Usuario usuario, String linha) {
 		
-		int i = 0, inicio = 0;
+		int inicioPalavraProcurada = 0;
 		String frase = "", frasePessoa = "", fraseMensagem = "";
 		Boolean flag = false;
 		String[] list = new String[TAMANHO_LISTA];
@@ -129,60 +135,53 @@ public class Teste {
 		usuario.setData(list[0]);
 		System.out.println("Data: " + list[0]);
 		
-		
-		
 		if (list[1].contains(": ")) {			
 			usuario.setPessoa(list[1].split(": ")[0]);
 			System.out.println("Pessoa: " + list[1].split(": ")[0]);			
 			usuario.setMensagem(list[1].split(": ")[1]);
 			System.out.println("Mensagem: " + list[1].split(": ")[1]);
-		} else {					
+		//Se não contém ": " (A pessoa saiu ou entrou no grupo)
+		} else {	
+			//Busca a palavra "saiu"
 			Pattern p = Pattern.compile("saiu");
 			Matcher m = p.matcher(frase);
 			while (m.find()) {
-				inicio = m.start();
+				inicioPalavraProcurada = m.start();
 				System.out.println(m.start() + " " + m.group() +" "+ m.end());
 				flag = true;
 			}
-			if (flag) {			
-				//Percorre a String e busca a palavra "saiu"
-				if (inicio != 0) {
-					for (i = 2; i < inicio - 2; i++) {
-						frasePessoa += frase.charAt(i);
-						usuario.setPessoa(frasePessoa);
-						System.out.println(frasePessoa);
-						
-					}
-					for (i = inicio; i < frase.length(); i++) {
-						fraseMensagem += frase.charAt(i);
-						usuario.setMensagem(fraseMensagem);
-						System.out.println(fraseMensagem);
-					}
-				}			
+			if (flag) {
+				setarPessoaEMensagem(usuario, inicioPalavraProcurada, frase, frasePessoa, fraseMensagem);		
 			} else {
+				//Busca a palavra "entrou"
 				Pattern p2 = Pattern.compile("entrou");
 				Matcher m2 = p2.matcher(frase);
 				while (m2.find()) {
-					inicio = m2.start();
+					inicioPalavraProcurada = m2.start();
 					System.out.println(m2.start() + " " + m2.group() +" "+ m2.end());
 					flag = false;
-				}
-				//Percorre a String e busca a palavra "entrou"
-				if (inicio != 0) {
-					for (i = 2; i < inicio - 1; i++) {
-						frasePessoa += frase.charAt(i);
-						usuario.setPessoa(frasePessoa);
-						System.out.println(frasePessoa);
-						
-					}
-					for (i = inicio; i < frase.length(); i++) {
-						fraseMensagem += frase.charAt(i);
-						usuario.setMensagem(fraseMensagem);
-						System.out.println(fraseMensagem);
-					}
 				}			
+				setarPessoaEMensagem(usuario, inicioPalavraProcurada, frase, frasePessoa, fraseMensagem);			
 			}
 		}		
+	}
+
+	private static void setarPessoaEMensagem(Usuario usuario, int inicioPalavraProcurada, String frase,
+			String frasePessoa, String fraseMensagem) {
+		int i;
+		if (inicioPalavraProcurada != 0) {
+			for (i = 2; i < inicioPalavraProcurada - 2; i++) {
+				frasePessoa += frase.charAt(i);
+				usuario.setPessoa(frasePessoa);
+				System.out.println(frasePessoa);
+				
+			}
+			for (i = inicioPalavraProcurada; i < frase.length(); i++) {
+				fraseMensagem += frase.charAt(i);
+				usuario.setMensagem(fraseMensagem);
+				System.out.println(fraseMensagem);
+			}
+		}
 	}
 		
 }
