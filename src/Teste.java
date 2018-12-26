@@ -21,9 +21,11 @@ public class Teste {
 		String[] list = new String[TAMANHO_LISTA];
 		Usuario usuario = null;
 		EntityManager em = new JPAUtil().getEntityManager();
+		String terceiroTermo = "";
+		String sextotermo = "";
 			
 		//Lê arquivo
-		FileInputStream fis = new FileInputStream("Teste2.txt");
+		FileInputStream fis = new FileInputStream("TesteFull.txt");
 		InputStreamReader isr = new InputStreamReader(fis);
 		BufferedReader br = new BufferedReader(isr);
 		
@@ -46,8 +48,14 @@ public class Teste {
 					}		
 				}
 				
-				String terceiroTermo = linha.substring(2, 3);
-				String sextotermo = linha.substring(5, 6);
+				//Verifica se a frase contém mais de 6 caracteres
+				if (linha.length() >= 6) {					
+					terceiroTermo = linha.substring(2, 3);
+					sextotermo = linha.substring(5, 6);
+				} else {
+					terceiroTermo = linha.substring(2, 3);
+					sextotermo = "";
+				}
 				
 				//Verifica se o terceiro e o sexto termo são "/"
 				if (terceiroTermo.equals("/") && sextotermo.equals("/")) {
