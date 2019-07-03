@@ -105,7 +105,7 @@ public class Teste {
 	}
 
 	private static BufferedReader leArquivo() throws FileNotFoundException {
-		FileInputStream fis = new FileInputStream("Conversa1.txt");
+		FileInputStream fis = new FileInputStream("conversa6Final.txt");
 		InputStreamReader isr = new InputStreamReader(fis);
 		BufferedReader br = new BufferedReader(isr);
 		return br;
